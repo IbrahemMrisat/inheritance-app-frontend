@@ -1,5 +1,8 @@
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
+import { apiGet } from '../services/api'
 
+type HeirInput = { relation: string; count?: number }
 type Share = { relation: string; fraction: string; percent: string | number }
 type Amount = { relation: string; value: number; currency?: string }
 type Result = {
@@ -8,22 +11,77 @@ type Result = {
   calculation_details: string
   amounts?: Amount[]
 }
+type CaseRecord = {
+  caseId: string
+  title?: string
+  notes?: string
+  createdAt?: string
+  input?: { heirs?: HeirInput[] }
+  result?: Result
+}
 
 export default function CaseDetail() {
   const { state } = useLocation() as { state?: { result?: Result } }
   const { caseId } = useParams()
-  const result: Result | null =
-    state?.result ||
-    (caseId ? JSON.parse(localStorage.getItem(`case:${caseId}`) || 'null') : null)
+  const [record, setRecord] = useState<CaseRecord | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  if (!result) {
-    return <div className="p-6 bg-white rounded-xl shadow max-w-2xl">لا توجد بيانات لهذه القضية بعد.</div>
-  }
+  // If navigated from NewCase, we may have only result in state; hydrate a minimal record
+  useEffect(() => {
+    if (state?.result && caseId) {
+      const local = localStorage.getItem(`case:${caseId}`)
+      const fromLocal = local ? JSON.parse(local) : null
+      setRecord({
+        caseId,
+        title: 'قضية',
+        notes: '',
+        createdAt: '',
+        input: { heirs: [] },
+        result: state.result || fromLocal
+      })
+    }
+  }, [state, caseId])
+
+  // If we don’t have a full record (e.g., hard refresh), fetch from API
+  useEffect(() => {
+    if (!caseId) return
+    if (record?.caseId === caseId && record?.result && record?.input) return
+    ;(async () => {
+      try {
+        setLoading(true)
+        const r = await apiGet(`/cases/${caseId}`)
+        setRecord(r)
+      } catch (e: any) {
+        setError(e?.message || 'تعذّر تحميل القضية')
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, [caseId])
+
+  const heirs = useMemo(() => record?.input?.heirs ?? [], [record])
+  const totalHeirs = useMemo(
+    () => heirs.reduce((acc, h) => acc + (Number.isInteger(h.count) ? (h.count as number) : 1), 0),
+    [heirs]
+  )
+  const result = record?.result
+
+  if (loading) return <div className="p-6 text-center text-gray-600">جارٍ التحميل…</div>
+  if (error)   return <div className="p-6 text-center text-red-600">{error}</div>
+  if (!result) return <div className="p-6">لا توجد بيانات لهذه القضية بعد.</div>
 
   return (
     <div className="grid gap-4 md:gap-6 md:grid-cols-2">
       <div className="bg-white p-4 sm:p-5 rounded-xl shadow">
-        <h2 className="font-semibold mb-3 text-base md:text-lg">المعلومات الإضافية</h2>
+        <h2 className="font-semibold mb-3 text-base md:text-lg">{record?.title || 'القضية'}</h2>
+        {record?.createdAt && (
+          <div className="text-xs text-gray-500 mb-2">
+            {new Date(record.createdAt).toLocaleString('ar-EG')}
+          </div>
+        )}
+        {record?.notes && <div className="text-sm text-gray-700 mb-3">{record.notes}</div>}
+
         <div className="text-sm md:text-base text-gray-700 whitespace-pre-wrap">
           <div className="mb-3">
             <span className="font-medium">الأساس الفقهي:</span><br/>{result.basis || '—'}
@@ -62,6 +120,21 @@ export default function CaseDetail() {
 
       <div className="bg-white p-4 sm:p-5 rounded-xl shadow">
         <h2 className="font-semibold mb-3 text-base md:text-lg">الأنصبة والنِّسَب</h2>
+
+        {/* Heirs count summary */}
+        <div className="text-sm text-gray-700 mb-3">
+          <div className="font-medium mb-1">عدد الورثة الإجمالي: {totalHeirs}</div>
+          {heirs.length > 0 && (
+            <ul className="list-disc pr-5 space-y-1">
+              {heirs.map((h, i) => (
+                <li key={i}>
+                  {h.relation} — {Number.isInteger(h.count) ? h.count : 1}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         <div className="overflow-x-auto -mx-2 sm:mx-0">
           <table className="min-w-[520px] sm:min-w-0 w-full text-sm">
             <thead>
