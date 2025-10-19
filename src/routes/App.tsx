@@ -10,36 +10,42 @@ import { getIdToken, logout } from '../services/auth'
 export default function App() {
   const [authed, setAuthed] = useState<boolean>(() => !!getIdToken())
   const loc = useLocation()
+
   useEffect(() => { setAuthed(!!getIdToken()) }, [loc])
+  useEffect(() => {
+    const onStorage = () => setAuthed(!!getIdToken())
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
 
   return (
-    <div className="min-h-screen">
-      <nav className="sticky top-0 bg-white border-b z-10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/cases" className="font-semibold">المواريث</Link>
-          <div className="flex gap-3">
+    <div className="min-h-screen bg-gray-50">
+      <nav className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b">
+        <div className="mx-auto w-full max-w-6xl px-3 sm:px-4 md:px-6 py-2 md:py-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <Link to="/cases" className="font-semibold text-base md:text-lg">المواريث</Link>
+          <div className="flex flex-wrap gap-2 md:gap-3">
             {authed ? (
               <>
-                <Link to="/cases" className="hover:underline">القضايا</Link>
-                <Link to="/cases/new" className="hover:underline">قضية جديدة</Link>
-                <button onClick={logout} className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200">خروج</button>
+                <Link to="/cases" className="px-3 py-1.5 text-sm rounded bg-gray-50 hover:bg-gray-100">القضايا</Link>
+                <Link to="/cases/new" className="px-3 py-1.5 text-sm rounded bg-gray-900 text-white">قضية جديدة</Link>
+                <button onClick={logout} className="px-3 py-1.5 text-sm rounded bg-gray-100 hover:bg-gray-200">خروج</button>
               </>
             ) : (
-              <Link to="/login" className="px-3 py-1 rounded bg-gray-900 text-white">تسجيل الدخول</Link>
+              <Link to="/login" className="px-3 py-1.5 text-sm rounded bg-gray-900 text-white">تسجيل الدخول</Link>
             )}
           </div>
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto p-4">
+      <main className="mx-auto w-full max-w-6xl px-3 sm:px-4 md:px-6 pt-4 pb-24">
         <Routes>
-          <Route path="/" element={<Navigate to="/cases" />} />
+          <Route path="/" element={<Navigate to="/cases" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/callback" element={<Callback />} />
           <Route path="/cases" element={<RequireAuth><CasesList /></RequireAuth>} />
           <Route path="/cases/new" element={<RequireAuth><NewCase /></RequireAuth>} />
-          <Route path="/cases/:id" element={<RequireAuth><CaseDetail /></RequireAuth>} />
-          <Route path="*" element={<div>Not Found</div>} />
+          <Route path="/cases/:caseId" element={<RequireAuth><CaseDetail /></RequireAuth>} />
+          <Route path="*" element={<div className="p-6">Not Found</div>} />
         </Routes>
       </main>
     </div>

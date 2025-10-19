@@ -40,10 +40,16 @@ export async function exchangeCodeForTokens(code: string) {
   if (accessToken) localStorage.setItem('access_token', accessToken)
 }
 
-export function getIdToken() { return localStorage.getItem('id_token') || '' }
-
+export function getIdToken() {
+  return localStorage.getItem('id_token') || ''
+}
+export function isLoggedIn() {
+  const t = getIdToken()
+  return !!t
+}
 export function logout() {
   localStorage.removeItem('id_token')
   localStorage.removeItem('access_token')
+  localStorage.removeItem('refresh_token')
   window.location.href = '/'
 }
