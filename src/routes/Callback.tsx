@@ -13,7 +13,7 @@ export default function Callback() {
     (async () => {
       try {
         await exchangeCodeForTokens(code)
-        navigate('/cases', { replace: true })
+        navigate('/cases-list', { replace: true })
       } catch (e) {
         console.error(e)
         navigate('/login', { replace: true })

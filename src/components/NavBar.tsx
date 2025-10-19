@@ -14,7 +14,7 @@ export default function NavBar() {
     <nav className="sticky top-0 bg-white/95 backdrop-blur border-b z-10">
       <div className="mx-auto w-full max-w-6xl px-3 sm:px-4 md:px-6 py-2 md:py-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         {/* Logo / Title */}
-        <Link to="/cases" className="font-semibold text-base md:text-lg">
+        <Link to="/cases-list" className="font-semibold text-base md:text-lg">
           المواريث
         </Link>
 
@@ -23,7 +23,7 @@ export default function NavBar() {
           {authed ? (
             <>
               <Link
-                to="/cases"
+                to="/cases-list"
                 className="px-3 py-1.5 text-sm rounded bg-gray-50 hover:bg-gray-100 transition"
               >
                 القضايا
