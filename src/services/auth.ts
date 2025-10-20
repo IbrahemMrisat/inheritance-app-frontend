@@ -51,5 +51,6 @@ export function logout() {
   localStorage.removeItem('id_token')
   localStorage.removeItem('access_token')
   localStorage.removeItem('refresh_token')
+  sessionStorage.clear()
   window.location.href = '/'
 }

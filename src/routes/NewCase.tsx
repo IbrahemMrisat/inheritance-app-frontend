@@ -32,7 +32,7 @@ export default function NewCase() {
     setError(null); setLoading(true)
     try {
       // POST /cases → { caseId, saved, result }
-      const out = await apiPost('/cases/new', data)
+      const out = await apiPost('/case/new', data)
       const caseId = out?.caseId || `local_${Date.now()}`
       // cache result locally so refresh works before GET endpoint is added
       localStorage.setItem(`case:${caseId}`, JSON.stringify(out?.result || {}))

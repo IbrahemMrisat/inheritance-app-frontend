@@ -27,7 +27,7 @@ export default function App() {
             {authed ? (
               <>
                 <Link to="/cases-list" className="px-3 py-1.5 text-sm rounded bg-gray-50 hover:bg-gray-100">القضايا</Link>
-                <Link to="/cases/new" className="px-3 py-1.5 text-sm rounded bg-gray-900 text-white">قضية جديدة</Link>
+                <Link to="/case/new" className="px-3 py-1.5 text-sm rounded bg-gray-900 text-white">قضية جديدة</Link>
                 <button onClick={logout} className="px-3 py-1.5 text-sm rounded bg-gray-100 hover:bg-gray-200">خروج</button>
               </>
             ) : (
@@ -43,7 +43,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/callback" element={<Callback />} />
           <Route path="/cases-list" element={<RequireAuth><CasesList /></RequireAuth>} />
-          <Route path="/cases/new" element={<RequireAuth><NewCase /></RequireAuth>} />
+          <Route path="/case/new" element={<RequireAuth><NewCase /></RequireAuth>} />
           <Route path="/cases/:caseId" element={<RequireAuth><CaseDetail /></RequireAuth>} />
           <Route path="*" element={<div className="p-6">Not Found</div>} />
         </Routes>
