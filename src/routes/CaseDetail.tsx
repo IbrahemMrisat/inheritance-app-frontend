@@ -84,16 +84,7 @@ export default function CaseDetail() {
       setDeleting(false)
     }
   }
-// ✅ Format date & time in English numerals, 24-hour format
-  const formatDateTime = (iso: string) => {
-    const date = new Date(iso)
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
-    const hours = String(date.getHours()).padStart(2, '0')
-    const minutes = String(date.getMinutes()).padStart(2, '0')
-    return `${day}/${month}/${year} ${hours}:${minutes}`
-  }
+
   if (loading) return <div className="p-6 text-center text-gray-600">جارٍ التحميل…</div>
   if (error)   return <div className="p-6 text-center text-red-600">{error}</div>
   if (!result) return <div className="p-6">لا توجد بيانات لهذه القضية بعد.</div>
@@ -126,7 +117,7 @@ export default function CaseDetail() {
 
         {record?.createdAt && (
           <div className="text-xs text-gray-500 mb-2">
-            { formatDateTime(record.createdAt)}
+            {new Date(record.createdAt).toLocaleString('ar-EG')}
           </div>
         )}
         {record?.notes && <div className="text-sm text-gray-700 mb-3">{record.notes}</div>}
