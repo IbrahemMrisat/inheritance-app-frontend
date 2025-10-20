@@ -20,18 +20,13 @@ export default function NavBar() {
       <div className="mx-auto w-full max-w-6xl px-3 sm:px-4 md:px-6 py-2 md:py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
 
         {/* Logo / Title */}
-        <Link
-          to={authed ? '/cases-list' : '/login'}
-          className="flex items-center gap-2 font-semibold text-base md:text-lg text-gray-900"
-        >
+        
           <img
             src={logo}
             alt="المواريث"
             className="h-7 w-auto object-contain"
           />
           <span className="hidden sm:inline-block">المواريث</span>
-        </Link>
-
         {/* Right side actions */}
         {!hideActions && authed && (
           <div className="flex flex-wrap gap-2 md:gap-3">
