@@ -49,6 +49,18 @@ export default function CasesList() {
     }
   }
 
+  // dd/mm/yyyy hh:mm using English numerals
+  const formatDateTime = (iso?: string) => {
+    if (!iso) return ''
+    const d = new Date(iso)
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const yyyy = d.getFullYear()
+    const hh = String(d.getHours()).padStart(2, '0')
+    const min = String(d.getMinutes()).padStart(2, '0')
+    return `${dd}/${mm}/${yyyy} ${hh}:${min}`
+  }
+
   if (loading) return <div className="p-6 text-center text-gray-600">جارٍ التحميل…</div>
   if (error)   return <div className="p-6 text-center text-red-600">{error}</div>
 
@@ -78,7 +90,7 @@ export default function CasesList() {
                   {c.title || 'قضية'}
                 </Link>
                 <div className="text-xs text-gray-500">
-                  {c.createdAt ? new Date(c.createdAt).toLocaleString('ar-EG') : ''}
+                  {formatDateTime(c.createdAt)}
                 </div>
               </div>
 
