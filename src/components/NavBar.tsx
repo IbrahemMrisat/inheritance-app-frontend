@@ -14,11 +14,11 @@ export default function NavBar() {
 
   const isLoginPage = pathname === '/login' || pathname === '/callback'
 
-  // ───────────── LOGIN PAGE (Centered logo only) ─────────────
+  // ───────────── LOGIN PAGE ─────────────
   if (isLoginPage) {
     return (
       <nav className="sticky top-0 bg-white/95 backdrop-blur border-b z-10 shadow-sm">
-        <div className="w-full flex justify-center items-center py-4">
+        <div className="flex flex-wrap gap-2 md:gap-3">
           <img
             src={logo}
             alt="المواريث"
@@ -58,7 +58,7 @@ export default function NavBar() {
             </Link>
 
             <Link
-              to="/cases/new"
+              to="/case/new"
               className="px-3 py-1.5 text-sm rounded bg-gray-900 text-white hover:bg-gray-800 transition"
             >
               قضية جديدة
