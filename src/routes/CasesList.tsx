@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { apiGet, apiDelete } from '../services/api'
 import { Link } from 'react-router-dom'
+import ConfirmBar from '../components/ConfirmBar'
 
 interface CaseSummary {
   caseId: string
@@ -14,8 +15,9 @@ interface CaseSummary {
 export default function CasesList() {
   const [items, setItems] = useState<CaseSummary[]>([])
   const [loading, setLoading] = useState(true)
-  const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [confirmFor, setConfirmFor] = useState<string | null>(null)
+  const [busyId, setBusyId] = useState<string | null>(null)
 
   const load = async () => {
     setLoading(true)
@@ -32,14 +34,15 @@ export default function CasesList() {
 
   useEffect(() => { load() }, [])
 
-  const onDelete = async (caseId: string) => {
-    const confirmText = 'هل أنت متأكد من حذف هذه القضية؟ لا يمكن التراجع.'
-    if (!window.confirm(confirmText)) return
+  const onDelete = async () => {
+    if (!confirmFor) return
     try {
-      setBusyId(caseId)
-      await apiDelete(`/cases/${caseId}`)
-      setItems(items => items.filter(x => x.caseId !== caseId))
+      setBusyId(confirmFor)
+      await apiDelete(`/cases/${confirmFor}`)
+      setItems(items => items.filter(x => x.caseId !== confirmFor))
+      setConfirmFor(null)
     } catch (e: any) {
+      setConfirmFor(null)
       alert(e?.message || 'تعذّر حذف القضية')
     } finally {
       setBusyId(null)
@@ -59,6 +62,17 @@ export default function CasesList() {
         <div className="grid gap-3">
           {items.map(c => (
             <div key={c.caseId} className="bg-white p-4 rounded-xl shadow hover:shadow-md transition-shadow">
+              {confirmFor === c.caseId && (
+                <div className="mb-3">
+                  <ConfirmBar
+                    message="هل أنت متأكد من حذف هذه القضية؟ لا يمكن التراجع."
+                    onConfirm={onDelete}
+                    onCancel={() => setConfirmFor(null)}
+                    busy={busyId === c.caseId}
+                  />
+                </div>
+              )}
+
               <div className="flex items-center justify-between gap-3">
                 <Link to={`/cases/${c.caseId}`} className="font-medium text-gray-800 hover:underline flex-1">
                   {c.title || 'قضية'}
@@ -80,11 +94,11 @@ export default function CasesList() {
                   عرض
                 </Link>
                 <button
-                  onClick={() => onDelete(c.caseId)}
+                  onClick={() => setConfirmFor(c.caseId)}
                   disabled={busyId === c.caseId}
                   className="px-3 py-1.5 text-sm rounded bg-red-50 text-red-700 hover:bg-red-100 transition disabled:opacity-60"
                 >
-                  {busyId === c.caseId ? 'جارٍ الحذف…' : 'حذف'}
+                  حذف
                 </button>
               </div>
             </div>

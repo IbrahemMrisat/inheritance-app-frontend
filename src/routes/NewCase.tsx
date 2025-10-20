@@ -31,7 +31,7 @@ export default function NewCase() {
   const onSubmit = async (data: FormValues) => {
     setError(null); setLoading(true)
     try {
-      // POST /cases → { caseId, saved, result }
+      // POST /case/new → { caseId, saved, result }
       const out = await apiPost('/case/new', data)
       const caseId = out?.caseId || `local_${Date.now()}`
       // cache result locally so refresh works before GET endpoint is added
