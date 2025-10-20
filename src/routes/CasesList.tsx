@@ -1,35 +1,53 @@
 import { useEffect, useState } from 'react'
-import { apiGet } from '../services/api'
+import { apiGet, apiDelete } from '../services/api'
 import { Link } from 'react-router-dom'
 
 interface CaseSummary {
   caseId: string
-  createdAt: string
+  title?: string
+  createdAt?: string
   sharesCount?: number
   basis?: string
-  key?: string
+  heirCount?: number
 }
 
 export default function CasesList() {
   const [items, setItems] = useState<CaseSummary[]>([])
   const [loading, setLoading] = useState(true)
+  const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await apiGet('/cases-list')  // Lambda returns { items, count }
-        setItems(res.items || [])
-      } catch (err: any) {
-        setError(err.message || 'حدث خطأ أثناء تحميل القضايا')
-      } finally {
-        setLoading(false)
-      }
-    })()
-  }, [])
+  const load = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await apiGet('/cases-list')
+      setItems(res.items || [])
+    } catch (e: any) {
+      setError(e?.message || 'تعذّر تحميل القضايا')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { load() }, [])
+
+  const onDelete = async (caseId: string) => {
+    const confirmText = 'هل أنت متأكد من حذف هذه القضية؟ لا يمكن التراجع.'
+    if (!window.confirm(confirmText)) return
+    try {
+      setBusyId(caseId)
+      await apiDelete(`/cases/${caseId}`)
+      setItems(items => items.filter(x => x.caseId !== caseId))
+    } catch (e: any) {
+      alert(e?.message || 'تعذّر حذف القضية')
+    } finally {
+      setBusyId(null)
+    }
+  }
 
   if (loading) return <div className="p-6 text-center text-gray-600">جارٍ التحميل…</div>
-  if (error)   return <div className="p-6 text-center text-red-500">{error}</div>
+  if (error)   return <div className="p-6 text-center text-red-600">{error}</div>
 
   return (
     <div>
@@ -40,24 +58,36 @@ export default function CasesList() {
       ) : (
         <div className="grid gap-3">
           {items.map(c => (
-            <Link
-              key={c.caseId}
-              to={`/cases/${c.caseId}`}
-              className="block bg-white p-4 rounded-xl shadow hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-800">
-                  {c.basis || 'قضية غير معنونة'}
-                </span>
-                <span className="text-sm text-gray-500">
+            <div key={c.caseId} className="bg-white p-4 rounded-xl shadow hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between gap-3">
+                <Link to={`/cases/${c.caseId}`} className="font-medium text-gray-800 hover:underline flex-1">
+                  {c.title || 'قضية'}
+                </Link>
+                <div className="text-xs text-gray-500">
                   {c.createdAt ? new Date(c.createdAt).toLocaleString('ar-EG') : ''}
-                </span>
+                </div>
               </div>
 
               <div className="text-sm text-gray-600 mt-1">
-                عدد الأسهم: {c.sharesCount ?? 0}
+                عدد الورثة: {c.heirCount ?? 0} • عدد الأسهم: {c.sharesCount ?? 0}
               </div>
-            </Link>
+
+              <div className="mt-3 flex gap-2">
+                <Link
+                  to={`/cases/${c.caseId}`}
+                  className="px-3 py-1.5 text-sm rounded bg-gray-900 text-white hover:bg-gray-800 transition"
+                >
+                  عرض
+                </Link>
+                <button
+                  onClick={() => onDelete(c.caseId)}
+                  disabled={busyId === c.caseId}
+                  className="px-3 py-1.5 text-sm rounded bg-red-50 text-red-700 hover:bg-red-100 transition disabled:opacity-60"
+                >
+                  {busyId === c.caseId ? 'جارٍ الحذف…' : 'حذف'}
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}
