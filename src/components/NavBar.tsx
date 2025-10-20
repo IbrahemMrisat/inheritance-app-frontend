@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { isLoggedIn, logout } from '../services/auth'
-import logo from '../images/navbar_logo.png' 
+import logo from '../images/navbar_logo.png'
 
 export default function NavBar() {
   const authed = isLoggedIn()
@@ -12,23 +12,24 @@ export default function NavBar() {
     navigate('/login', { replace: true })
   }
 
-  // Don't show action buttons on login or callback routes
-  const hideActions = pathname === '/login' || pathname === '/callback'
+  // Determine if we’re on login or callback
+  const isLoginPage = pathname === '/login' || pathname === '/callback'
 
   return (
     <nav className="sticky top-0 bg-white/95 backdrop-blur border-b z-10 shadow-sm">
-      <div className="mx-auto w-full max-w-6xl px-3 sm:px-4 md:px-6 py-2 md:py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-
-        {/* Logo / Title */}
-        
+      <div className="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
+        {/* Left side: logo */}
+        <div className="flex items-center gap-2">
           <img
             src={logo}
             alt="المواريث"
             className="h-7 w-auto object-contain"
           />
-          <span className="hidden sm:inline-block">المواريث</span>
-        {/* Right side actions */}
-        {!hideActions && authed && (
+          <span className="hidden sm:inline-block text-gray-800 font-semibold">المواريث</span>
+        </div>
+
+        {/* Right side: actions (hidden on login page) */}
+        {!isLoginPage && authed && (
           <div className="flex flex-wrap gap-2 md:gap-3">
             <Link
               to="/cases-list"
