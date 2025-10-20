@@ -19,13 +19,12 @@ export default function NavBar() {
     <nav className="sticky top-0 bg-white/95 backdrop-blur border-b z-10 shadow-sm">
       <div className="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
         {/* Left side: logo */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap gap-2 md:gap-3">
           <img
             src={logo}
             alt="المواريث"
             className="h-7 w-auto object-contain"
           />
-          <span className="hidden sm:inline-block text-gray-800 font-semibold">المواريث</span>
         </div>
 
         {/* Right side: actions (hidden on login page) */}
