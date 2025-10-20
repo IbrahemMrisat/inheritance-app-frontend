@@ -12,23 +12,43 @@ export default function NavBar() {
     navigate('/login', { replace: true })
   }
 
-  // Determine if we’re on login or callback
   const isLoginPage = pathname === '/login' || pathname === '/callback'
 
+  // ───────────── LOGIN PAGE (Centered logo only) ─────────────
+  if (isLoginPage) {
+    return (
+      <nav className="sticky top-0 bg-white/95 backdrop-blur border-b z-10 shadow-sm">
+        <div className="w-full flex justify-center items-center py-4">
+          <img
+            src={logo}
+            alt="المواريث"
+            className="h-10 w-auto object-contain"
+          />
+        </div>
+      </nav>
+    )
+  }
+
+  // ───────────── NORMAL NAV (authenticated pages) ─────────────
   return (
     <nav className="sticky top-0 bg-white/95 backdrop-blur border-b z-10 shadow-sm">
-      <div className="mx-auto w-full max-w-6xl px-4 py-3 flex items-center justify-between">
-        {/* Left side: logo */}
-        <div className="flex flex-wrap gap-2 md:gap-3">
+      <div className="mx-auto w-full max-w-6xl px-4 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+
+        {/* Logo / Title (links to list or login) */}
+        <Link
+          to={authed ? '/cases-list' : '/login'}
+          className="flex items-center gap-2 font-semibold text-base md:text-lg text-gray-900"
+        >
           <img
             src={logo}
             alt="المواريث"
             className="h-7 w-auto object-contain"
           />
-        </div>
+          <span className="hidden sm:inline-block">المواريث</span>
+        </Link>
 
-        {/* Right side: actions (hidden on login page) */}
-        {!isLoginPage && authed && (
+        {/* Right side actions */}
+        {authed && (
           <div className="flex flex-wrap gap-2 md:gap-3">
             <Link
               to="/cases-list"
@@ -38,7 +58,7 @@ export default function NavBar() {
             </Link>
 
             <Link
-              to="/case/new"
+              to="/cases/new"
               className="px-3 py-1.5 text-sm rounded bg-gray-900 text-white hover:bg-gray-800 transition"
             >
               قضية جديدة
